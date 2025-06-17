@@ -194,12 +194,14 @@
 
       setTimeout(() => animateIfOverflow(messageElement), 100);
 
-      const wrapperWidth = messageWrapper.scrollWidth;
       const containerWidth = chatContainer.clientWidth;
 
-      while (wrapperWidth > containerWidth && messageWrapper.children.length > 1) {
-        messageWrapper.removeChild(messageWrapper.firstChild);
-      }
+      // Desplazar mensajes suavemente si excede el ancho
+      setTimeout(() => {
+        while (messageWrapper.scrollWidth > containerWidth && messageWrapper.children.length > 1) {
+          messageWrapper.removeChild(messageWrapper.firstChild);
+        }
+      }, 100);
     }
 
     const iframe = document.createElement("iframe");
@@ -249,4 +251,4 @@
     }
   </script>
 </body>
-</html
+</html>
