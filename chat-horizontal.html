@@ -10,7 +10,7 @@
       padding: 0;
       width: 100%;
       height: 100%;
-      background-color: #0000;
+      background-color: transparent;
       overflow: hidden;
       font-family: 'Inter', sans-serif;
     }
@@ -39,11 +39,9 @@
     .message {
       display: flex;
       align-items: center;
-      background: linear-gradient(145deg, #1a2a48, #162238);
+      background: transparent;
       border-radius: 12px;
-      padding: 10px 20px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-      border: 1px solid #2e3b55;
+      padding: 4px 10px;
       white-space: nowrap;
       overflow: hidden;
       color: #fff;
@@ -53,11 +51,11 @@
     }
 
     .avatar-wrapper {
-      width: 40px;
-      height: 40px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       overflow: hidden;
-      margin-right: 12px;
+      margin-right: 8px;
       background: linear-gradient(45deg, #4ab8f9, #4cd137);
       flex-shrink: 0;
     }
@@ -72,9 +70,16 @@
 
     .name {
       font-weight: bold;
-      margin-right: 10px;
+      margin-right: 6px;
       font-size: 1em;
       color: #fff;
+      display: inline-block;
+    }
+
+    .badge {
+      height: 16px;
+      margin-right: 4px;
+      vertical-align: middle;
     }
 
     .text {
@@ -100,7 +105,7 @@
     .donation {
       color: #4cd137;
       font-weight: 600;
-      margin-left: 15px;
+      margin-left: 12px;
     }
   </style>
 </head>
@@ -130,8 +135,26 @@
           </div>`;
       }
 
-      const nameHTML = `<span class="name">${data.chatname || "Anon"}</span>`;
+      const nameStyle = data.nameColor
+        ? `style="color: ${data.nameColor}; text-shadow: 0 0 2px ${data.nameColor}AA"`
+        : "";
 
+      let badgesHTML = "";
+      if (data.chatbadges) {
+        data.chatbadges.forEach(badge => {
+          if (typeof badge === "object") {
+            if (badge.type === "img" && badge.src) {
+              badgesHTML += `<img class="badge" src="${badge.src}" alt="badge">`;
+            } else if (badge.type === "svg" && badge.html) {
+              badgesHTML += `<span class="badge svg">${badge.html}</span>`;
+            }
+          } else {
+            badgesHTML += `<img class="badge" src="${badge}" alt="badge">`;
+          }
+        });
+      }
+
+      const nameHTML = `<span class="name" ${nameStyle}>${data.chatname || "Anon"}</span>`;
       const messageText = data.chatmessage || "";
       const textHTML = `
         <div class="text">
@@ -140,7 +163,7 @@
 
       const donationHTML = data.hasDonation ? `<span class="donation">${data.hasDonation}</span>` : "";
 
-      wrapper.innerHTML = `${avatarHTML}${nameHTML}${textHTML}${donationHTML}`;
+      wrapper.innerHTML = `${avatarHTML}${badgesHTML}${nameHTML}${textHTML}${donationHTML}`;
       return wrapper;
     }
 
@@ -159,7 +182,6 @@
 
       setTimeout(() => animateIfOverflow(messageElement), 100);
 
-      // --- AUTO-LIMITACIÓN DINÁMICA ---
       const wrapperWidth = messageWrapper.scrollWidth;
       const containerWidth = chatContainer.clientWidth;
 
@@ -168,7 +190,6 @@
       }
     }
 
-    // IFRAME de Social Stream Ninja
     const iframe = document.createElement("iframe");
     iframe.src = featuredMode
       ? `https://vdo.socialstream.ninja/?ln&password=${password}&salt=vdo.ninja&label=overlay&exclude=${roomID}&scene&novideo&noaudio&cleanoutput&room=${roomID}`
@@ -183,7 +204,6 @@
       }
     });
 
-    // OPCIONAL: WebSocket como fallback
     const serverURL = urlParams.has("localserver")
       ? "ws://127.0.0.1:3000"
       : urlParams.get("server") || "wss://io.socialstream.ninja";
