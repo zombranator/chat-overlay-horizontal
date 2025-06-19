@@ -189,13 +189,22 @@
     }
 
     function addMessageToOverlay(data) {
-      // FILTRO para evitar mensajes fantasma tipo "Anon"
       const noMessage = !data.chatmessage || data.chatmessage.trim() === "";
       const noDonation = !data.hasDonation;
       const noUser = !data.chatname || data.chatname.trim() === "";
 
       if (noMessage && noDonation) return;
       if (noUser) return;
+
+      // 🛡️ DETECCIÓN ADICIONAL DE DONACIONES (con antitroll)
+      const donationWords = ["donated", "donación", "donate", "bits", "cheer", "super chat", "superchat"];
+      const messageLower = (data.chatmessage || "").toLowerCase();
+      const containsMoney = /[\$\€\£\¥\₽\₱\₹\₦]\s?\d{1,5}/.test(messageLower);
+      const isLikelyDonation = donationWords.some(word => messageLower.includes(word)) && containsMoney;
+
+      if (!data.hasDonation && isLikelyDonation) {
+        data.hasDonation = "💸";
+      }
 
       const messageElement = createMessageElement(data);
       messageWrapper.appendChild(messageElement);
