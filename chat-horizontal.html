@@ -166,7 +166,7 @@
         });
       }
 
-      const nameHTML = `<span class="name" ${nameStyle}>${data.chatname || "Anon"}</span>`;
+      const nameHTML = `<span class="name" ${nameStyle}>${data.chatname}</span>`;
       const messageText = data.chatmessage || "";
       const textHTML = `
         <div class="text">
@@ -189,6 +189,14 @@
     }
 
     function addMessageToOverlay(data) {
+      // FILTRO para evitar mensajes fantasma tipo "Anon"
+      const noMessage = !data.chatmessage || data.chatmessage.trim() === "";
+      const noDonation = !data.hasDonation;
+      const noUser = !data.chatname || data.chatname.trim() === "";
+
+      if (noMessage && noDonation) return;
+      if (noUser) return;
+
       const messageElement = createMessageElement(data);
       messageWrapper.appendChild(messageElement);
 
@@ -196,7 +204,6 @@
 
       const containerWidth = chatContainer.clientWidth;
 
-      // Desplazar mensajes suavemente si excede el ancho
       setTimeout(() => {
         while (messageWrapper.scrollWidth > containerWidth && messageWrapper.children.length > 1) {
           messageWrapper.removeChild(messageWrapper.firstChild);
