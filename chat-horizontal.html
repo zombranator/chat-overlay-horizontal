@@ -128,7 +128,27 @@
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
-    const roomID = urlParams.get("session") || "default";
+    const roomID = urlParams.get("session");
+    if (!roomID) {
+  document.body.innerHTML = `
+    <div style="
+      color: white;
+      font-family: Inter, sans-serif;
+      font-size: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+      background: transparent;
+    ">
+      ❌ No se encontró un Session ID.<br><br>
+      Usa la URL así:<br>
+      <strong>?session=TU_SESSION_ID</strong>
+    </div>
+  `;
+  throw new Error("Session ID missing");
+}
     const password = "false";
     const featuredMode = false;
 
@@ -268,3 +288,4 @@
   </script>
 </body>
 </html>
+
